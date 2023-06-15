@@ -23,4 +23,22 @@ export class UserController {
             res.status(500).send(getErrorMessage(err));
         }
     }
+
+
+    public login(req: Request, res: Response, next: NextFunction) {
+        try {
+            passport.authenticate("local", function (err: Error, user: any, info: any) {
+                // no async/await because passport works only with callback ..
+                if (err) return next(err);
+                if (!user) {
+                    return res.status(401).json({ status: "error", code: "unauthorized" });
+                } else {
+                    const token = jwt.sign({ username: user.username }, JWT_SECRET);
+                    res.status(200).send({ token: token, username: user.username });
+                }
+            });
+        } catch (err) {
+            res.status(500).send(getErrorMessage(err));
+        }
+    }
 }
